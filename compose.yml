@@ -1,0 +1,46 @@
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        PYTHON_VERSION: 3.12
+        DEBIAN_RELEASE: bookworm
+        PIP_REQUIREMENTS: requirements/base.txt
+    image: matchataxa/flask-${WEB_ENV}
+    container_name: matchataxa-flask-${WEB_ENV}-container
+
+    environment:
+      - FLASK_APP=app
+      - WEB_ENV=${WEB_ENV}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - .:/code
+    command: /srv/start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile_postgres
+      args:
+        POSTGRES_VERSION: 17
+        DEBIAN_RELEASE: bookworm
+    image: machataxa/postgres-${WEB_ENV}
+    container_name: machataxa-postgres-${WEB_ENV}-container
+    restart: no
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ../matchataxa-volumes/pgdata:/var/lib/postgresql/data/pgdata
+      - ./initdb:/docker-entrypoint-initdb.d
+      - ../matchataxa-volumes/bucket:/bucket
+    #command: ["postgres", "-c", "log_statement=all"]
