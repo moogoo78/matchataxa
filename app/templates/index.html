@@ -7,7 +7,10 @@
 </head>
 <body>
   <div id="main" style="width: 100%; height: 500px;"></div>
+  <div id="loading" style="display: none">searching...</div>
   <div id="toolbar"></div>
+  <div id="specimen-grid" style="width: 600px; height: 350px;"></div>
+
   <script src="{{ url_for('static', filename='vendor/w2ui-2.0.min.js') }}"></script>
   <script src="{{ url_for('static', filename='vendor/papaparse.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/index.js') }}"></script>

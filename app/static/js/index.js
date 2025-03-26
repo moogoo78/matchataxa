@@ -8,6 +8,9 @@
   ];
 
   let currentSelect = null;
+  let currentTaxonKey = null;
+
+  const loading = document.getElementById('loading');
 
   // read csv
   const readCSV = (index) => {
@@ -115,11 +118,11 @@
             'typeData': typeData,
           });
         } else {
-          console.log(row.data);
+          //console.log(row.data);
         }
       },
       complete: function() {
-        console.log("All done!");
+        //console.log("All done!");
         //console.log(rowData);
         DEMO[index][2] = rowData;
       }
@@ -278,7 +281,8 @@
     box: '#toolbar',
     name: 'toolbar',
     items: [
-      { type: 'button', id: 'item1', text: 'Find Specimen', icon: 'fa fa-bolt' },
+      { type: 'button', id: 'item1', text: 'GBIF: Find taxonKey', icon: 'fa fa-tree' },
+      { type: 'button', id: 'item7', text: 'GBIF: Find Specimen', icon: 'fa fa-bolt' },
       { type: 'break' },
       { type: 'check', id: 'item2', text: 'Check 1', icon: 'w2ui-icon-check' },
       { type: 'check', id: 'item3', text: 'Check 2', icon: 'w2ui-icon-check' },
@@ -290,7 +294,85 @@
     ],
     onClick(event) {
       console.log('Target: '+ event.target, event);
-      console.log(currentSelect);
+      if (event.target === 'item1') {
+        let scientificName = currentSelect.sourceData[1];
+        loading.style = 'display: block';
+        fetch(`https://api.gbif.org/v1/species/search?q=${scientificName}&rank=SPECIES&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`)
+        .then(resp => resp.json())
+          .then(result => {
+            loading.style = 'display: none';
+            console.log(result);
+            w2popup.open({
+              title: 'Popup',
+              width: 800,
+              height: 600,
+              showMax: true,
+              body: '<div id="taxon-grid" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>'
+            })
+              .then(() => {
+                let taxonGrid = new w2grid({
+                  name: 'taxon-grid',
+                  box: '#taxon-grid',
+                  style: 'border: 0px; border-left: 1px solid #efefef',
+                  columns: [
+                    { field: 'key', text: 'taxonKey', size: '80px' },
+                    { field: 'scientificName', text: 'Scientific Name', size: '250px' },
+                    { field: 'status', text: 'Status', size: '80px' },
+                    { field: 'accordingTo', text: 'According To', size: '280px', attr: 'align="center"' }
+                  ],
+                  onClick(event) {
+                    let record = this.get(event.detail.recid);
+                    console.log(record);
+                    currentTaxonKey = record.key;
+                  }
+                });
+                let da = result.results.map( (v, i) => {
+                  console.log(v);
+                  let sciName = v.species;
+                  if (v.authorship) {
+                    sciName = `${sciName} ${v.authorship}`;
+                  }
+                  return {
+                    recid: i,
+                    key: v.speciesKey,
+                    scientificName: sciName,
+                    accordingTo: v.accordingTo,
+                    status: v.taxonomicStatus,
+                  };
+                });
+                taxonGrid.add(da);
+              });
+          });
+      } else if (event.target === 'item7' && currentTaxonKey) {
+        loading.style = 'display: block';
+        fetch(`https://api.gbif.org/v1/occurrence/search?basisOfRecord=PreservedSpecimen&taxon_key=${currentTaxonKey}`)
+          .then(resp => resp.json())
+          .then(result => {
+            loading.style = 'display: none';
+            console.log(result);
+            let spGrid = new w2grid({
+              name: 'specimen-grid',
+              box: '#specimen-grid',
+              style: 'border: 0px; border-left: 1px solid #efefef',
+              columns: [
+                { field: 'country_code', text: 'Country', size: '80px' },
+                { field: 'locality', text: 'Scientific Name', size: '250px' },
+                { field: 'county', text: 'County', size: '120px' },
+                { field: 'catalogNumber', text: 'Catalog Number', size: '180px' },
+              ],
+            });
+            let data = result.results.map((v, i) => {
+              return {
+                recid: i,
+                country_code: v.countryCode,
+                locality: v.locality,
+                county: v.county || '',
+                catalogNumber: v.catalogNumber,
+              };
+            });
+            spGrid.add(data);
+          });
+      }
     }
   });
 
