@@ -2,9 +2,9 @@
   'use strict';
 
   const DEMO = [
-    ['Berberis Sect. Wallichianae', '/static/mg-usage.csv', []],
-    ['Acmella in Taiwan', '/static/mg-usage2.csv', []],
-    ['Clematis subsection Pierotianae (Ranunculaceae)', '/static/mg-usage3.csv', []]
+    ['Berberis Sect. Wallichianae', '/matchataxa/static/mg-usage.csv', []],
+    ['Acmella in Taiwan', '/matchataxa/static/mg-usage2.csv', []],
+    ['Clematis subsection Pierotianae (Ranunculaceae)', '/matchataxa/static/mg-usage3.csv', []]
   ];
 
   let currentSelect = null;
