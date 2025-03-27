@@ -358,14 +358,15 @@
               box: '#specimen-grid',
               style: 'border: 0px; border-left: 1px solid #efefef',
               columns: [
-                { field: 'country_code', text: 'Country', size: '80px' },
-                { field: 'locality', text: 'Scientific Name', size: '250px' },
+                { field: 'recordedBy', text: 'Collector', size: '100px' },
+                { field: 'recordNumber', text: 'Coll. Number', size: '80px' },
+                { field: 'country_code', text: 'Country', size: '40px' },
+                { field: 'locality', text: 'Locality', size: '250px' },
                 { field: 'county', text: 'County', size: '120px' },
-                { field: 'institution', text: 'Institution', size: '120px'},
+                { field: 'institution', text: 'Institution', size: '100px'},
                 { field: 'catalogNumber', text: 'Catalog Number', size: '180px' },
               ],
             });
-            console.log(result);
             let data = result.results.map((v, i) => {
               return {
                 recid: i,
@@ -374,6 +375,8 @@
                 county: v.county || '',
                 institution: v.institutionCode,
                 catalogNumber: v.catalogNumber,
+                recordNumber: v.recordNumber,
+                recordedBy: v.recordedBy,
               };
             });
             spGrid.add(data);
