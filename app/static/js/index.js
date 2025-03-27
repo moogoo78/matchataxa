@@ -322,8 +322,11 @@
                   ],
                   onClick(event) {
                     let record = this.get(event.detail.recid);
-                    console.log(record);
+                    //console.log(record);
                     currentTaxonKey = record.key;
+                    let taxon = document.getElementById('taxon');
+                    taxon.style = 'display: block';
+                    taxon.textContent = record.scientificName;
                   }
                 });
                 let da = result.results.map( (v, i) => {
@@ -358,15 +361,18 @@
                 { field: 'country_code', text: 'Country', size: '80px' },
                 { field: 'locality', text: 'Scientific Name', size: '250px' },
                 { field: 'county', text: 'County', size: '120px' },
+                { field: 'institution', text: 'Institution', size: '120px'},
                 { field: 'catalogNumber', text: 'Catalog Number', size: '180px' },
               ],
             });
+            console.log(result);
             let data = result.results.map((v, i) => {
               return {
                 recid: i,
                 country_code: v.countryCode,
                 locality: v.locality,
                 county: v.county || '',
+                institution: v.institutionCode,
                 catalogNumber: v.catalogNumber,
               };
             });
